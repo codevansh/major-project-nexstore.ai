@@ -12,6 +12,8 @@ from app.api.products import router as products_router
 from app.api.inventory import router as inventory_router
 from app.api.customers import router as customers_router
 from app.api.sales import router as sales_router
+from app.api.purchases import router as purchases_router
+from app.api.suppliers import router as suppliers_router
 
 
 @asynccontextmanager
@@ -34,7 +36,8 @@ app.include_router(products_router, prefix="/api")
 app.include_router(inventory_router, prefix="/api")
 app.include_router(customers_router, prefix="/api")
 app.include_router(sales_router, prefix="/api")
-
+app.include_router(purchases_router,prefix="/api")
+app.include_router(suppliers_router, prefix="/api")
 
 @app.get("/")
 def root():

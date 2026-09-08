@@ -203,3 +203,30 @@ def initialize_database() -> None:
         [("created_at", DESCENDING)],
         name="system_events_date_index",
     )
+    
+    # Purchases
+    db.purchases.create_index(
+    [("invoice_number", ASCENDING)],
+    unique=True,
+    name="unique_purchase_invoice",
+    )
+
+    db.purchases.create_index(
+        [("supplier_id", ASCENDING)],
+        name="purchase_supplier_index",
+    )
+
+    db.purchases.create_index(
+        [("store_id", ASCENDING)],
+        name="purchase_store_index",
+    )
+
+    db.purchases.create_index(
+        [("created_at", DESCENDING)],
+        name="purchase_date_index",
+    )
+
+    db.purchases.create_index(
+        [("status", ASCENDING)],
+        name="purchase_status_index",
+    )
