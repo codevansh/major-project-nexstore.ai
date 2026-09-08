@@ -15,27 +15,19 @@ class InventoryCreate(BaseModel):
 
 class InventoryUpdate(BaseModel):
     available: int | None = Field(default=None,ge=0)
-
     reserved: int | None = Field(default=None,ge=0)
-
     damaged: int | None = Field(default=None,ge=0)
-
     reorder_level: int | None = Field(default=None,ge=0)
-
     reorder_quantity: int | None = Field(default=None,ge=1)
 
 
 class InventoryResponse(BaseModel):
     id: str
-
     product_id: str
     store_id: str
-
     available: int
     reserved: int
     damaged: int
-
     reorder_level: int
     reorder_quantity: int
-
     stock_status: str

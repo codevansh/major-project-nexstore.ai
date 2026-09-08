@@ -60,22 +60,15 @@ def serialize_inventory(
     }
 
 
-@router.post(
-    "",
-    response_model=InventoryResponse,
-    status_code=201,
-)
+@router.post("",response_model=InventoryResponse,status_code=201)
 def create_inventory(
     inventory: InventoryCreate,
     service: InventoryService = Depends(get_inventory_service),
 ):
 
     try:
-
         inventory_id = service.create_inventory(inventory)
-
     except Exception as exc:
-
         if "duplicate key" in str(exc).lower():
             raise HTTPException(
                 status_code=409,
@@ -153,10 +146,7 @@ def get_product_inventory(
     return serialize_inventory(inventory)
 
 
-@router.patch(
-    "/{inventory_id}",
-    response_model=InventoryResponse,
-)
+@router.patch("/{inventory_id}",response_model=InventoryResponse)
 def update_inventory(
     inventory_id: str,
     inventory: InventoryUpdate,
