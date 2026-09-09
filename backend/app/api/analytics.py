@@ -76,3 +76,36 @@ def get_low_stock(
             status_code=500,
             detail=str(e),
         )
+
+
+@router.get("/inventory")
+def get_inventory_analytics(
+    db: Database = Depends(get_database),
+):
+    try:
+        service = AnalyticsService(db)
+        return service.get_inventory_analytics()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/products")
+def get_product_analytics(
+    db: Database = Depends(get_database),
+):
+    try:
+        service = AnalyticsService(db)
+        return service.get_product_analytics()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.get("/customers")
+def get_customer_analytics(
+    db: Database = Depends(get_database),
+):
+    try:
+        service = AnalyticsService(db)
+        return service.get_customer_analytics()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

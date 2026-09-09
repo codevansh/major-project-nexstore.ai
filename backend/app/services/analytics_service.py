@@ -383,3 +383,154 @@ class AnalyticsService:
         )
 
         return list(result)
+
+    
+    def get_inventory_analytics(self):
+        result = list(
+            self.inventory.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": None,
+                            "total_available": {
+                                "$sum": "$stock.available"
+                            },
+                            "total_reserved": {
+                                "$sum": "$stock.reserved"
+                            },
+                            "total_damaged": {
+                                "$sum": "$stock.damaged"
+                            },
+                            "total_inventory_items": {
+                                "$sum": 1
+                            }
+                        }
+                    }
+                ]
+            )
+        )
+
+        if not result:
+            return {
+                "total_available": 0,
+                "total_reserved": 0,
+                "total_damaged": 0,
+                "total_inventory_items": 0
+            }
+
+        data = result[0]
+
+        return {
+            "total_available": data.get("total_available", 0),
+            "total_reserved": data.get("total_reserved", 0),
+            "total_damaged": data.get("total_damaged", 0),
+            "total_inventory_items": data.get(
+                "total_inventory_items", 0
+            )
+        }    
+
+        
+    def get_product_analytics(self):
+        total_products = self.products.count_documents({})
+        active_products = self.products.count_documents(
+            {"status": "active"}
+        )
+        inactive_products = self.products.count_documents(
+            {"status": {"$ne": "active"}}
+        )
+
+        categories = list(
+            self.products.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$category",
+                            "product_count": {"$sum": 1}
+                        }
+                    },
+                    {
+                        "$sort": {
+                            "product_count": -1
+                        }
+                    }
+                ]
+            )
+        )
+
+        return {
+            "total_products": total_products,
+            "active_products": active_products,
+            "inactive_products": inactive_products,
+            "categories": [
+                {
+                    "category": item["_id"],
+                    "product_count": item["product_count"]
+                }
+                for item in categories
+            ]
+        }
+
+        
+    def get_customer_analytics(self):
+        total_customers = self.customers.count_documents({})
+
+        segments = list(
+            self.customers.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$segment",
+                            "customer_count": {"$sum": 1}
+                        }
+                    },
+                    {
+                        "$sort": {
+                            "customer_count": -1
+                        }
+                    }
+                ]
+            )
+        )
+
+        spending_result = list(
+            self.customers.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": None,
+                            "total_spent": {
+                                "$sum": "$purchase_summary.total_spent"
+                            },
+                            "total_orders": {
+                                "$sum": "$purchase_summary.total_orders"
+                            }
+                        }
+                    }
+                ]
+            )
+        )
+
+        spending_data = (
+            spending_result[0]
+            if spending_result
+            else {}
+        )
+
+        return {
+            "total_customers": total_customers,
+            "total_spent": spending_data.get(
+                "total_spent",
+                0
+            ),
+            "total_orders": spending_data.get(
+                "total_orders",
+                0
+            ),
+            "segments": [
+                {
+                    "segment": item["_id"],
+                    "customer_count": item["customer_count"]
+                }
+                for item in segments
+            ]
+        }
