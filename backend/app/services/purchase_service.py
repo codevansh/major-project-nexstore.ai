@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from datetime import datetime, timezone
 
 from bson import ObjectId
@@ -7,17 +6,16 @@ from pymongo.errors import DuplicateKeyError
 
 from app.models.purchase import purchase_document
 from app.schemas.purchase import PurchaseCreate
-=======
+
 from bson import ObjectId
 from pymongo.database import Database
 
 from app.models.purchase import PURCHASE_COLLECTION
->>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
 
 
 class PurchaseService:
     def __init__(self, db: Database):
-<<<<<<< HEAD
+
         self.db = db
         self.products = db.products
         self.inventory = db.inventory
@@ -238,8 +236,11 @@ class PurchaseService:
             .skip(skip)
             .limit(limit)
         )
-=======
+
         self.collection = db[ PURCHASE_COLLECTION ]
+
+        self.collection = db[PURCHASE_COLLECTION]
+
 
     def get_purchases(self, skip: int = 0, limit: int = 50):
         return list(
@@ -253,4 +254,4 @@ class PurchaseService:
         if not ObjectId.is_valid(purchase_id):
             return None
         return self.collection.find_one({"_id": ObjectId(purchase_id)})
->>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
+
