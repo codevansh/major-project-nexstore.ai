@@ -7,3 +7,8 @@ python-dotenv
 passlib[bcrypt]
 python-jose[cryptography]
 email-validator
+pwdlib[argon2]
+python-jose[cryptography]
+email-validator
+argon2-cffi
+python-multipart

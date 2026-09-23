@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 from datetime import datetime, timezone, timedelta
+=======
+from datetime import datetime
+>>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
 
 from pymongo.database import Database
 
 
 class AnalyticsService:
+<<<<<<< HEAD
 
     def __init__(self, db: Database):
         self.db = db
@@ -534,3 +539,77 @@ class AnalyticsService:
                 for item in segments
             ]
         }
+=======
+	def __init__(self, db: Database):
+		self.sales = db.sales
+		self.purchases = db.purchases
+		self.expenses = db.expenses
+
+	@staticmethod
+	def _amount(document: dict, paths: tuple[str, ...]) -> float:
+		for path in paths:
+			value = document
+			for part in path.split("."):
+				if not isinstance(value, dict) or part not in value:
+					value = None
+					break
+				value = value[part]
+			if isinstance(value, (int, float)):
+				return float(value)
+		return 0.0
+
+	@staticmethod
+	def _query(
+		store_id: str | None,
+		date_field: str,
+		start_date: datetime | None,
+		end_date: datetime | None,
+	) -> dict:
+		query: dict = {}
+		if store_id:
+			query["store_id"] = store_id
+		if start_date or end_date:
+			date_query = {}
+			if start_date:
+				date_query["$gte"] = start_date
+			if end_date:
+				date_query["$lte"] = end_date
+			query[date_field] = date_query
+		return query
+
+	def get_finance_summary(
+		self,
+		store_id: str | None = None,
+		start_date: datetime | None = None,
+		end_date: datetime | None = None,
+	) -> dict:
+		sales_query = self._query(store_id, "created_at", start_date, end_date)
+		purchase_query = self._query(store_id, "created_at", start_date, end_date)
+		expense_query = self._query(store_id, "expense_date", start_date, end_date)
+		expense_query["status"] = "active"
+
+		total_revenue = sum(
+			self._amount(sale, ("totals.total",))
+			for sale in self.sales.find({**sales_query, "status": "completed"})
+		)
+		total_purchases = sum(
+			self._amount(
+				purchase,
+				("totals.total", "totals.total_cost", "total_cost", "total"),
+			)
+			for purchase in self.purchases.find(purchase_query)
+		)
+		total_expenses = sum(
+			self._amount(expense, ("amount",))
+			for expense in self.expenses.find(expense_query)
+		)
+
+		gross_profit = total_revenue - total_purchases
+		return {
+			"total_revenue": total_revenue,
+			"total_purchases": total_purchases,
+			"total_expenses": total_expenses,
+			"gross_profit": gross_profit,
+			"net_profit": gross_profit - total_expenses,
+		}
+>>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)

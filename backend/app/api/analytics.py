@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo.database import Database
 
@@ -109,3 +110,30 @@ def get_customer_analytics(
         return service.get_customer_analytics()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+=======
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Query
+from pymongo.database import Database
+
+from app.core.database import get_database
+from app.core.security import get_current_user
+from app.services.analytics_service import AnalyticsService
+
+router = APIRouter(prefix="/analytics", tags=["Analytics"])
+
+
+@router.get("/finance")
+def get_finance_summary(
+    store_id: str | None = Query(default=None),
+    start_date: datetime | None = Query(default=None),
+    end_date: datetime | None = Query(default=None),
+    db: Database = Depends(get_database),
+    _: dict = Depends(get_current_user),
+):
+    return AnalyticsService(db).get_finance_summary(
+        store_id=store_id,
+        start_date=start_date,
+        end_date=end_date,
+    )
+>>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)

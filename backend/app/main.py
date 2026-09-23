@@ -15,6 +15,11 @@ from app.api.sales import router as sales_router
 from app.api.purchases import router as purchases_router
 from app.api.suppliers import router as suppliers_router
 from app.api.analytics import router as analytics_router
+from app.api.auth import router as auth_router
+from app.api.expenses import router as expenses_router
+from app.api.analytics import router as analytics_router
+from app.api.suppliers import router as suppliers_router
+from app.api.purchases import router as purchases_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,9 +41,17 @@ app.include_router(products_router, prefix="/api")
 app.include_router(inventory_router, prefix="/api")
 app.include_router(customers_router, prefix="/api")
 app.include_router(sales_router, prefix="/api")
+
 app.include_router(purchases_router,prefix="/api")
 app.include_router(suppliers_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
+
+app.include_router(auth_router, prefix="/api")
+app.include_router(expenses_router, prefix="/api")
+app.include_router(analytics_router, prefix="/api")
+app.include_router(suppliers_router, prefix="/api")
+app.include_router(purchases_router, prefix="/api")
+
 
 @app.get("/")
 def root():

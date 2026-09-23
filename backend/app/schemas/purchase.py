@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from pydantic import BaseModel, Field
 
 class PurchaseItemRequest(BaseModel):
@@ -31,6 +32,28 @@ class PurchaseCreate(BaseModel):
         default=0,
         ge=0
     )
+=======
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class PurchaseItemResponse(BaseModel):
+    product_id: str
+    barcode: str
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    subtotal: float
+
+
+class PurchaseTotalsResponse(BaseModel):
+    subtotal: float
+    discount: float
+    tax: float
+    total: float
+>>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
 
 
 class PurchaseResponse(BaseModel):
@@ -38,9 +61,17 @@ class PurchaseResponse(BaseModel):
     invoice_number: str
     supplier_id: str
     store_id: str
+<<<<<<< HEAD
     items: list[dict]
     subtotal: float
     discount: float
     tax: float
     total: float
     status: str
+=======
+    items: list[PurchaseItemResponse]
+    totals: PurchaseTotalsResponse
+    status: str
+    created_at: datetime
+    updated_at: datetime
+>>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)

@@ -117,10 +117,20 @@ def initialize_database() -> None:
     )
 
     # Suppliers
+    supplier_indexes = db.suppliers.index_information()
+    if "unique_supplier_code" in supplier_indexes:
+        db.suppliers.drop_index("unique_supplier_code")
+
     db.suppliers.create_index(
-        [("supplier_code", ASCENDING)],
+        [("contact.email", ASCENDING)],
         unique=True,
-        name="unique_supplier_code",
+        sparse=True,
+        name="unique_supplier_email",
+    )
+
+    db.suppliers.create_index(
+        [("status", ASCENDING)],
+        name="supplier_status_index",
     )
 
     # Purchase Orders
@@ -137,6 +147,33 @@ def initialize_database() -> None:
     db.purchase_orders.create_index(
         [("status", ASCENDING)],
         name="purchase_order_status_index",
+    )
+
+    # Existing purchases
+    db.purchases.create_index(
+        [("created_at", DESCENDING)],
+        name="purchase_date_index",
+    )
+
+    db.purchases.create_index(
+        [("supplier_id", ASCENDING)],
+        name="purchase_supplier_index",
+    )
+
+    db.purchases.create_index(
+        [("status", ASCENDING)],
+        name="purchase_status_index",
+    )
+
+    # Expenses
+    db.expenses.create_index(
+        [("store_id", ASCENDING), ("expense_date", DESCENDING)],
+        name="expense_store_date_index",
+    )
+
+    db.expenses.create_index(
+        [("category", ASCENDING)],
+        name="expense_category_index",
     )
 
     # AI Agent Runs
