@@ -1,10 +1,11 @@
-<<<<<<< HEAD
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo.database import Database
 
 from app.core.database import get_database
+from app.core.security import get_current_user
 from app.services.analytics_service import AnalyticsService
-
 
 router = APIRouter(
     prefix="/analytics",
@@ -19,7 +20,6 @@ def get_overview(
     try:
         service = AnalyticsService(db)
         return service.get_overview()
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -34,7 +34,6 @@ def get_sales_analytics(
     try:
         service = AnalyticsService(db)
         return service.get_sales_analytics()
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -53,10 +52,7 @@ def get_top_products(
 ):
     try:
         service = AnalyticsService(db)
-        return service.get_top_products(
-            limit=limit
-        )
-
+        return service.get_top_products(limit=limit)
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -71,7 +67,6 @@ def get_low_stock(
     try:
         service = AnalyticsService(db)
         return service.get_low_stock()
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -87,7 +82,10 @@ def get_inventory_analytics(
         service = AnalyticsService(db)
         return service.get_inventory_analytics()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
 
 
 @router.get("/products")
@@ -97,9 +95,13 @@ def get_product_analytics(
     try:
         service = AnalyticsService(db)
         return service.get_product_analytics()
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
+
 
 @router.get("/customers")
 def get_customer_analytics(
@@ -109,18 +111,10 @@ def get_customer_analytics(
         service = AnalyticsService(db)
         return service.get_customer_analytics()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-=======
-from datetime import datetime
-
-from fastapi import APIRouter, Depends, Query
-from pymongo.database import Database
-
-from app.core.database import get_database
-from app.core.security import get_current_user
-from app.services.analytics_service import AnalyticsService
-
-router = APIRouter(prefix="/analytics", tags=["Analytics"])
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
 
 
 @router.get("/finance")
@@ -136,4 +130,3 @@ def get_finance_summary(
         start_date=start_date,
         end_date=end_date,
     )
->>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
