@@ -12,3 +12,7 @@ python-jose[cryptography]
 email-validator
 argon2-cffi
 python-multipart
+scikit-learn
+joblib
+pandas
+numpy

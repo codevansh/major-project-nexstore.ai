@@ -5,7 +5,14 @@ from pymongo.database import Database
 
 from app.core.database import get_database
 from app.core.security import get_current_user
+from app.ml.demand_forecasting.inference import InsufficientHistoryError
+from app.schemas.demand_forecast import DemandForecastResponse
 from app.services.analytics_service import AnalyticsService
+from app.services.demand_forecast_service import (
+    SyntheticDemoForecastService,
+    SyntheticForecastUnavailableError,
+    SyntheticProductNotFoundError,
+)
 
 router = APIRouter(
     prefix="/analytics",
@@ -130,3 +137,35 @@ def get_finance_summary(
         start_date=start_date,
         end_date=end_date,
     )
+
+
+def get_synthetic_demo_forecast_service() -> SyntheticDemoForecastService:
+    return SyntheticDemoForecastService()
+
+
+@router.get("/demand-forecast", response_model=DemandForecastResponse)
+def get_demand_forecast(
+    product_id: str = Query(..., min_length=1, max_length=100),
+    horizon_days: int = Query(default=7, ge=1, le=30),
+    service: SyntheticDemoForecastService = Depends(
+        get_synthetic_demo_forecast_service
+    ),
+    _: dict = Depends(get_current_user),
+):
+    try:
+        return service.forecast(product_id, horizon_days=horizon_days)
+    except SyntheticProductNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Product is not available in the synthetic demo dataset.",
+        )
+    except InsufficientHistoryError:
+        raise HTTPException(
+            status_code=422,
+            detail="Synthetic demo sales history is insufficient or stale.",
+        )
+    except SyntheticForecastUnavailableError:
+        raise HTTPException(
+            status_code=503,
+            detail="Synthetic demand forecast demo is currently unavailable.",
+        )
