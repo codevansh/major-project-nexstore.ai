@@ -12,3 +12,5 @@ python-jose[cryptography]
 email-validator
 argon2-cffi
 python-multipart
+langgraph
+httpx

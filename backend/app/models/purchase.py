@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from datetime import datetime, timezone
 
 
@@ -12,7 +11,6 @@ def purchase_document(
     tax: float,
     total: float,
 ) -> dict:
-
     now = datetime.now(timezone.utc)
 
     return {
@@ -30,13 +28,6 @@ def purchase_document(
         "created_at": now,
         "updated_at": now,
     }
-=======
-"""MongoDB purchase document field conventions.
 
-Purchase documents are created by the existing purchase workflow outside this
-checkout. This module documents the persisted shape without adding creation
-logic to the restored read API.
-"""
 
 PURCHASE_COLLECTION = "purchases"
->>>>>>> 44c87e5 (First 10 phases from the 27 phases are completed)
