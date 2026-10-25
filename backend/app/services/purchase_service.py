@@ -5,12 +5,8 @@ from pymongo.database import Database
 from pymongo.errors import DuplicateKeyError
 
 from app.models.purchase import purchase_document
-from app.schemas.purchase import PurchaseCreate
-
-from bson import ObjectId
-from pymongo.database import Database
-
 from app.models.purchase import PURCHASE_COLLECTION
+from app.schemas.purchase import PurchaseCreate
 
 
 class PurchaseService:
@@ -19,7 +15,7 @@ class PurchaseService:
         self.db = db
         self.products = db.products
         self.inventory = db.inventory
-        self.purchases = db.purchases
+        self.purchases = db[PURCHASE_COLLECTION]
         self.suppliers = db.suppliers
 
     def create_purchase(self,purchase: PurchaseCreate):
@@ -225,33 +221,12 @@ class PurchaseService:
             }
         )
 
-    def get_purchases(self,skip: int = 0,limit: int = 50):
+    def get_purchases(self, skip: int = 0, limit: int = 50):
         return list(
             self.purchases
             .find()
-            .sort(
-                "created_at",
-                -1
-            )
-            .skip(skip)
-            .limit(limit)
-        )
-
-        self.collection = db[ PURCHASE_COLLECTION ]
-
-        self.collection = db[PURCHASE_COLLECTION]
-
-
-    def get_purchases(self, skip: int = 0, limit: int = 50):
-        return list(
-            self.collection.find()
             .sort("created_at", -1)
             .skip(skip)
             .limit(limit)
         )
-
-    def get_purchase(self, purchase_id: str):
-        if not ObjectId.is_valid(purchase_id):
-            return None
-        return self.collection.find_one({"_id": ObjectId(purchase_id)})
 

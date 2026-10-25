@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 
+from bson import ObjectId
 from pymongo.database import Database
 
 
@@ -256,17 +257,50 @@ class AnalyticsService:
                 purchase,
                 ("totals.total", "totals.total_cost", "total_cost", "total"),
             )
-            for purchase in self.purchases.find(purchase_query)
+            for purchase in self.purchases.find(
+                {**purchase_query, "status": "received"}
+            )
         )
         total_expenses = sum(
             self._amount(expense, ("amount",))
             for expense in self.expenses.find(expense_query)
         )
-        gross_profit = total_revenue - total_purchases
+        cost_of_goods_sold = self._cost_of_goods_sold(sales_query)
+        gross_profit = total_revenue - cost_of_goods_sold
         return {
             "total_revenue": total_revenue,
             "total_purchases": total_purchases,
+            "cost_of_goods_sold": cost_of_goods_sold,
             "total_expenses": total_expenses,
             "gross_profit": gross_profit,
             "net_profit": gross_profit - total_expenses,
         }
+
+    def _cost_of_goods_sold(self, sales_query: dict) -> float:
+        """Estimate COGS from sale-time costs or current catalog costs.
+
+        Older sale rows do not contain a cost snapshot, so their current product
+        cost is the best available estimate until historical costs are retained.
+        """
+        product_costs: dict[str, float] = {}
+        total = 0.0
+        for sale in self.sales.find({**sales_query, "status": "completed"}):
+            for item in sale.get("items", []):
+                quantity = self._amount(item, ("quantity",))
+                unit_cost = self._amount(item, ("unit_cost",))
+                if "unit_cost" not in item and item.get("product_id"):
+                    product_id = item["product_id"]
+                    if product_id not in product_costs:
+                        product = self.products.find_one({"_id": product_id})
+                        # Inventory and sales store product IDs as strings.
+                        if product is None:
+                            if ObjectId.is_valid(product_id):
+                                product = self.products.find_one(
+                                    {"_id": ObjectId(product_id)}
+                                )
+                        product_costs[product_id] = self._amount(
+                            product or {}, ("pricing.cost", "cost_price")
+                        )
+                    unit_cost = product_costs[product_id]
+                total += quantity * unit_cost
+        return total

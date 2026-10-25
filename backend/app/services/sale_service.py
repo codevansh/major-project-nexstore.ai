@@ -131,6 +131,9 @@ class SalesService:
                     "name": product["name"],
                     "quantity": requested_item.quantity,
                     "unit_price": unit_price,
+                    "unit_cost": float(
+                        product.get("pricing", {}).get("cost", 0)
+                    ),
                     "subtotal": item_subtotal,
                 }
             )
